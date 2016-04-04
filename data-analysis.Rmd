@@ -2,26 +2,41 @@
 title: Traffic Data Analysis
 output: html_document
 ---
+# Importing needed libraries
 
-'''{r}
+```{r}
 library(rmarkdown)
 library(dplyr)
-'''
+```
 # Loading and Processing Data
 
 We loaded the traffic-data.csv file to the R console to read it and start discovering the basic properties
 
-'''{r}
+```{r}
 traffic_data<- read.csv("traffic-data.csv",header=TRUE)
 dim(traffic_data)
-'''
+```
 
 The traffic dataset we have got about 429982 rows and 34 variables as columns, when we look at the data we will find that the first thing to do is to eliminate the advertisement columns as it has nothing relevant to our data investigation.
 
-We can make use of the dplyr library verbs to eliminate certain columns with the method select(), from the dataset we can see that we have 13 columns concerning advertisement to be eliminated.
+We can make use of the **dplyr** library verbs to eliminate certain columns with the method select(), from the dataset we can see that we have 13 columns concerning advertisement to be eliminated.
 
-'''{r}
+```{r}
 head(traffic_data %>% select(starts_with("ad")))
 grep("ad", colnames(traffic_data))
 traffic_roads<-traffic_data %>% select(-starts_with("ad"))
-'''
+```
+Now we can find the columns that has values with zero variance or in other words has only one unique values to remove it from our dataframe.
+
+```{r}
+sapply(traffic_roads,function(x) length(unique(x))==1)
+```
+
+We find that TRUE values reside under two columns in the dataframe which are **rd.cl** and **rd.rp.type**, so we can filter these two variables.
+
+```{r}
+var.in<-c("rd.cl","rd.rp.type")
+var.out<-setdiff(names(traffic_roads),var.in)
+traffic_roads<-traffic_roads[var.out]
+head(traffic_roads)
+```
