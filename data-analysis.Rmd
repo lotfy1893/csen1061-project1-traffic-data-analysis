@@ -75,3 +75,10 @@ library(chron)
 conversion <- chron(times=report_timestamp)
 traffic_roads$rp.realTime <- conversion
 ```
+
+But because there are values in the **rd.rp.hr** exactly 25706 entries out of range set to <NA> thats why we removed the added column and instead we did in one step.
+
+```{r}
+traffic_roads<-traffic_roads %>% select(-starts_with("rp.realTime"))
+traffic_roads <- traffic_roads %>% mutate(report_realTime = as.POSIXct(round(crawl_date - (rd.rp.hr*60*60 + rd.rp.mn*60), "mins"))) %>% select(-c(rd.rp.mn, rd.rp.hr))
+```
