@@ -40,3 +40,38 @@ var.out<-setdiff(names(traffic_roads),var.in)
 traffic_roads<-traffic_roads[var.out]
 head(traffic_roads)
 ```
+The thing also I found it useful is to use the **strptime** function to re-formata the crawl_date variable by replacing the abbreviated day-month format with a full Y%M%D format.
+
+```{r}
+traffic_roads$crawl_date <- strptime(traffic_roads$crawl_date, format = "%a %b %e %X UTC %Y", tz = "UTC") %>% as.POSIXct()
+head(traffic_roads)
+```
+
+After showing the columns I noticed that we have image columns like **rd.img** which has 300k NA values out of 400k and also we have another 2 img columns **rd.rp.img** and **rd.rp.rpImg**, we cannot make use of such columns so we included those 3 variables in the elimination process as a part of the data-cleaning.
+
+```{r}
+sum(is.na(traffic_roads$rd.img))
+traffic_roads<-traffic_roads %>% select(-ends_with(".img"))
+dim(traffic_roads)
+head(traffic_roads)
+traffic_roads<-traffic_roads %>% select(-ends_with(".rpImg"))
+```
+
+When we take a good look at how the data keeps track of the reports time, we see that we only can use **crawl_date** and **rd.rp.hr/rd.rp.mn** and none of them tells the real exact time the report took place, so thats why we needed to combine the hours and minutes together first in one column in a time format and subtract from the time exists in crawl_date we get the real report's time.
+
+```{r}
+rmins<- traffic_roads["rd.rp.mn"]
+rhours<- traffic_roads["rd.rp.hr"]
+hours_vector<-as.vector(rhours$rd.rp.hr)
+minutes_vector<-as.vector(rmins$rd.rp.mn)
+report_timestamp<- paste(hours_vector,":",minutes_vector,":00",sep="")
+```
+
+Then I used a library called **chron** to convert strings of time to real time type and format.
+
+```{r}
+library(chron)
+?chron
+conversion <- chron(times=report_timestamp)
+traffic_roads$rp.realTime <- conversion
+```
