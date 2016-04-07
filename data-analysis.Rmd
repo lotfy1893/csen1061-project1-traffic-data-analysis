@@ -199,4 +199,5 @@ Afterwards we try to find the portion of the most interest where we have most of
 ```{r}
 reports <- traffic_roads[traffic_roads$rd.rp.stid < 6,] %>% group_by(report_realTime) %>% summarize(avRep=mean(rd.rp.stid), numRep=n())
 ggplot(congestionDf, aes(x=report_realTime,y=avRep)) + geom_bar(stat="identity")
+hist(as.numeric(as.character(traffic_roads$rd.hr[traffic_roads$rd.rp.stid == 4]), traffic_roads$rd.rp.cm[traffic_roads$rd.rp.stid == 4]), main="Peak Times",xlab="Hours",border="black",col="red")
 ```
