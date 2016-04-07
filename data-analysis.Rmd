@@ -191,3 +191,12 @@ The thing is we are searching for 11 unique category of status-ids, but as far a
 - rd.rp.stid == 4 | 5 => it means that the road is quite crowded.
 - rd.rp.stid == 6 => there is an inquiry about the state.
 - rd.rp.stid > 6 => indicates very bad state.
+
+# Peak Time of Reports
+
+Afterwards we try to find the portion of the most interest where we have most of the reports, and we noticed earlier from other graphs that we have the most reports with status < 6.
+
+```{r}
+reports <- traffic_roads[traffic_roads$rd.rp.stid < 6,] %>% group_by(report_realTime) %>% summarize(avRep=mean(rd.rp.stid), numRep=n())
+ggplot(congestionDf, aes(x=report_realTime,y=avRep)) + geom_bar(stat="identity")
+```
