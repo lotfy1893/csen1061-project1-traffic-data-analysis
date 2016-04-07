@@ -114,9 +114,39 @@ traffic_roads<-traffic_roads[traffic_roads$rd.rp.nm!="bey2ollakgps" , ]
 sum(na.omit(traffic_roads$rd.rp.nm) == "bey2ollakgps")aggregate(x$Frequency, by=list(Category=x$Category), FUN=sum)
 ```
 
-When we looked at the unique values occur in each variable we noticed that we have 3 columns which has only two distinct values which are 0 or 1, which clearly indicates a boolean variables that will be investigated later on.
+When we looked at the unique values occur in each variable we noticed that we have 3 columns which has only two distinct values which are 0 or 1, which clearly indicates a boolean variables that will be investigated later on, those columns are **rd.new**, **rd.strq** and **rd.cmrq**
 
 ```{r}
 apply(traffic_roads, 2, function(x)length(unique(x)))
 glimpse(traffic_roads)
 ```
+
+# Trying to find some correlations
+
+Now after we spent a long journey trying to clean the data maybe we need to get back to clean later but it is time to plot some correlation graphs
+
+## road comments and statuses
+
+Lets start with these columns specifically **rd.ri**, **rd.stid**, **rd.rp.stid** and **rd.rp.cmid**
+
+```{r}
+corr_vars = c("rd.ri","rd.stid","rd.rp.stid","rd.rp.cmid")
+library("corrplot")
+corr_numeric = cor(traffic_roads[, cor_feats], use = "complete")
+corrplot(method = "shade", cor_mat)
+corr_numeric
+```
+
+we find that the correlations that matters is between rd.rp.stid and rd.stid, also between rd.stid and rd.rp.cmid
+
+## Strq and Cmrq
+
+We can check the correlation between **rd.strq** ,**rd.cmrq** and **rd.new**.
+
+```{r}
+corr_vars = c("rd.strq","rd.cmrq","rd.new")
+corr_numeric = cor(traffic_roads[, cor_feats], use = "complete")
+corrplot(method = "shade", cor_mat)
+corr_numeric
+```
+we find that the correlation between rd.strq and rd.cmrq is almost inversed, and there is a weak correlation between rd.strq and rd.new, thus rd.new is still under investigation.
