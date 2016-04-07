@@ -111,7 +111,7 @@ gps_trackers<-traffic_roads[which(traffic_roads$rd.rp.nm=="bey2ollakgps"),]
 head(gps_trackers)
 glimpse(gps_trackers)
 traffic_roads<-traffic_roads[traffic_roads$rd.rp.nm!="bey2ollakgps" , ]
-sum(na.omit(traffic_roads$rd.rp.nm) == "bey2ollakgps")aggregate(x$Frequency, by=list(Category=x$Category), FUN=sum)
+sum(na.omit(traffic_roads$rd.rp.nm) == "bey2ollakgps")
 ```
 
 When we looked at the unique values occur in each variable we noticed that we have 3 columns which has only two distinct values which are 0 or 1, which clearly indicates a boolean variables that will be investigated later on, those columns are **rd.new**, **rd.strq** and **rd.cmrq**
@@ -150,3 +150,44 @@ corrplot(method = "shade", cor_mat)
 corr_numeric
 ```
 we find that the correlation between rd.strq and rd.cmrq is almost inversed, and there is a weak correlation between rd.strq and rd.new, thus rd.new is still under investigation.
+
+# Reports Analysis
+
+we selected the 2 columns **rd.rp.stid** and **rd.rp.cm** in another dataset to investigate the reports specifically and see how the comments act against an assigned status id.
+
+```{r}
+apply(traffic_roads, 2, function(x)length(unique(x)))
+reports_glance <- traffic_roads%>% select(rd.rp.stid,rd.rp.cm)
+head(reports_glance)
+glimpse(reports_glance)
+sum(is.na(traffic_roads$rd.rp.stid))
+head(reports_glance,n=50)
+```
+
+we know for sure that rd.rp.stid has 11 distinct values distributed among unique 26k comments.
+
+## first graph for reports
+```{r}
+traffic_roads %>% ggplot() + stat_count(aes(x=rd.rp.stid, show_legend=FALSE), fill="firebrick2", colour="black" ,alpha=0.7, width=1) + xlab("Time") + ylab("Count")
+```
+#### we see from the graph that the status which has an id = 2 has the most frequency, when we searched for the corresponding comment we found that it matches the word "lazeez".
+
+The reports categories are the following:
+
+1 --> 7alawa
+2 --> lazeez
+3 --> mashy
+4 --> za7ma
+5 --> mafesh amal | za7ma gedan
+6 --> Eih el nezam? | za7ma wla kwyyes ???? | update plz ?
+7 --> ??
+8 --> ??
+9 --> ??
+10 --> zeft
+
+The thing is we are searching for 11 unique category of status-ids, but as far as we saw right now we can deduce that:
+
+- rd.rp.stid < 4 => that means the road state is fine, and the less the number the better the road's state is.
+- rd.rp.stid == 4 | 5 => it means that the road is quite crowded.
+- rd.rp.stid == 6 => there is an inquiry about the state.
+- rd.rp.stid > 6 => indicates very bad state.
