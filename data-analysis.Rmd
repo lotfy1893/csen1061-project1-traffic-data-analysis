@@ -82,3 +82,22 @@ But because there are values in the **rd.rp.hr** exactly 25706 entries out of ra
 traffic_roads<-traffic_roads %>% select(-starts_with("rp.realTime"))
 traffic_roads <- traffic_roads %>% mutate(report_realTime = as.POSIXct(round(crawl_date - (rd.rp.hr*60*60 + rd.rp.mn*60), "mins"))) %>% select(-c(rd.rp.mn, rd.rp.hr))
 ```
+
+We noticed that the column **rd.name** is formated as primary road and secondary road separated by semi-colon, thus we separated on the comma to two different columns **rd.primary_road** and **rd.secondary_road**.
+
+Well, that lead us to a warning where there is no secondary road actually, if the report is concerning the main road only the value is set automatically to <NA>, thats why we replaced the NA to "primary" by which the entry mains that the report is sticked to the primary road.
+
+```{r}
+library("tidyr")
+traffic_roads<-traffic_roads%>%separate("rd.nm",c("rd.primary_road","rd.secondary_road"),";")
+traffic_roads$rd.secondary_road[is.na(traffic_roads$rd.secondary_road)] <- "primary"
+head(traffic_roads)
+sum(is.na(traffic_roads$rd.secondary_road))
+sum((traffic_roads$rd.secondary_road)=="primary")
+```
+
+Then we need to remove the duplicate reports, which gives the same info about the same region, and that is simply by removing the duplicate values in the **rd.rp.cmid** column.
+
+```{r}
+traffic_roads<-traffic_roads[!(traffic_roads$rd.rp.cmid%>%duplicated),]
+```
