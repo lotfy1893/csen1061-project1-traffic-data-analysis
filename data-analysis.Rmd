@@ -100,4 +100,23 @@ Then we need to remove the duplicate reports, which gives the same info about th
 
 ```{r}
 traffic_roads<-traffic_roads[!(traffic_roads$rd.rp.cmid%>%duplicated),]
+traffic_roads_unique <- traffic_roads %>% select(crawl_date, rd.ri, rd.stid) %>% unique()
+glimpse(traffic_roads_unique)
+```
+
+We saw it would be more useful to separate the entries where the reporter is *bey2ollakgps* which give info about the time which the road took and its corresponding speed.
+
+```{r}
+gps_trackers<-traffic_roads[which(traffic_roads$rd.rp.nm=="bey2ollakgps"),]
+head(gps_trackers)
+glimpse(gps_trackers)
+traffic_roads<-traffic_roads[traffic_roads$rd.rp.nm!="bey2ollakgps" , ]
+sum(na.omit(traffic_roads$rd.rp.nm) == "bey2ollakgps")aggregate(x$Frequency, by=list(Category=x$Category), FUN=sum)
+```
+
+When we looked at the unique values occur in each variable we noticed that we have 3 columns which has only two distinct values which are 0 or 1, which clearly indicates a boolean variables that will be investigated later on.
+
+```{r}
+apply(traffic_roads, 2, function(x)length(unique(x)))
+glimpse(traffic_roads)
 ```
